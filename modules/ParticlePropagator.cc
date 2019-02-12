@@ -71,9 +71,9 @@ ParticlePropagator::~ParticlePropagator()
 
 void ParticlePropagator::Init()
 {
-  fRadius = GetDouble("Radius", 1.0);
+  fRadius = GetDouble("Radius", 1.0) * 1.E3;
   fRadius2 = fRadius*fRadius;
-  fHalfLength = GetDouble("HalfLength", 3.0);
+  fHalfLength = GetDouble("HalfLength", 3.0) * 1.E3;
   fBz = GetDouble("Bz", 0.0);
   if(fRadius < 1.0E-2)
   {
@@ -86,8 +86,8 @@ void ParticlePropagator::Init()
     return;
   }
 
-  fRadiusMax = GetDouble("RadiusMax", fRadius);
-  fHalfLengthMax = GetDouble("HalfLengthMax", fHalfLength);
+  fRadiusMax = GetDouble("RadiusMax", fRadius) * 1.E3;
+  fHalfLengthMax = GetDouble("HalfLengthMax", fHalfLength) * 1.E3;
 
   // import array with output from filter/classifier module
 
@@ -136,6 +136,7 @@ void ParticlePropagator::Process()
   Double_t rcu, rc2, xd, yd, zd;
   Double_t l, d0, dz, p, ctgTheta, phip, etap, alpha;
   Double_t bsx, bsy, bsz;
+  UInt_t vxTruth;
 
   const Double_t c_light = 2.99792458E8;
 
@@ -161,6 +162,8 @@ void ParticlePropagator::Process()
 
     particlePosition = particle->Position;
     particleMomentum = particle->Momentum;
+    vxTruth = candidate->vxTruth;
+
     x = particlePosition.X()*1.0E-3;
     y = particlePosition.Y()*1.0E-3;
     z = particlePosition.Z()*1.0E-3;
@@ -199,6 +202,7 @@ void ParticlePropagator::Process()
       candidate->L = 0.0;
 
       candidate->Momentum = particleMomentum;
+      candidate->vxTruth = vxTruth;
       candidate->AddCandidate(mother);
 
       fOutputArray->Add(candidate);
@@ -243,6 +247,7 @@ void ParticlePropagator::Process()
       candidate->L = l*1.0E3;
 
       candidate->Momentum = particleMomentum;
+      candidate->vxTruth = vxTruth;
       candidate->AddCandidate(mother);
 
       fOutputArray->Add(candidate);
@@ -394,7 +399,7 @@ void ParticlePropagator::Process()
         candidate->Xd = xd*1.0E3;
         candidate->Yd = yd*1.0E3;
         candidate->Zd = zd*1.0E3;
-
+        candidate->vxTruth = vxTruth;
         candidate->AddCandidate(mother);
 
         fOutputArray->Add(candidate);

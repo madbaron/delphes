@@ -21,7 +21,7 @@
 
 /** \class SiliconHits
  *
- *  Selects candidates from the InputArray according to the efficiency formula.
+ *  Finds hits in an ideal Silicon Detector
  *
  *  \author F. Meloni, DESY
  *

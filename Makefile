@@ -443,7 +443,8 @@ tmp/modules/ModulesDict.$(SrcSuf): \
 	modules/VertexSorter.h \
 	modules/VertexFinder.h \
 	modules/VertexFinderDA4D.h \
-	modules/ExampleModule.h
+	modules/ExampleModule.h \
+	modules/SiliconHits.h
 tmp/modules/ModulesDict$(PcmSuf): \
 	tmp/modules/ModulesDict.$(SrcSuf)
 ModulesDict$(PcmSuf): \
@@ -929,6 +930,15 @@ tmp/modules/RecoPuFilter.$(ObjSuf): \
 	external/ExRootAnalysis/ExRootResult.h \
 	external/ExRootAnalysis/ExRootFilter.h \
 	external/ExRootAnalysis/ExRootClassifier.h
+tmp/modules/SiliconHits.$(ObjSuf): \
+	modules/SiliconHits.$(SrcSuf) \
+	modules/SiliconHits.h \
+	classes/DelphesClasses.h \
+	classes/DelphesFactory.h \
+	classes/DelphesFormula.h \
+	external/ExRootAnalysis/ExRootResult.h \
+	external/ExRootAnalysis/ExRootFilter.h \
+	external/ExRootAnalysis/ExRootClassifier.h
 tmp/modules/SimpleCalorimeter.$(ObjSuf): \
 	modules/SimpleCalorimeter.$(SrcSuf) \
 	modules/SimpleCalorimeter.h \
@@ -1154,6 +1164,7 @@ DELPHES_OBJ +=  \
 	tmp/modules/PileUpJetID.$(ObjSuf) \
 	tmp/modules/PileUpMerger.$(ObjSuf) \
 	tmp/modules/RecoPuFilter.$(ObjSuf) \
+	tmp/modules/SiliconHits.$(ObjSuf) \
 	tmp/modules/SimpleCalorimeter.$(ObjSuf) \
 	tmp/modules/StatusPidFilter.$(ObjSuf) \
 	tmp/modules/TaggingParticlesSkimmer.$(ObjSuf) \
@@ -2058,6 +2069,10 @@ external/fastjet/version.hh: \
 	@touch $@
 
 modules/MomentumSmearing.h: \
+	classes/DelphesModule.h
+	@touch $@
+
+modules/SiliconHits.h: \
 	classes/DelphesModule.h
 	@touch $@
 
