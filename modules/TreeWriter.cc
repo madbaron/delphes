@@ -71,6 +71,7 @@ void TreeWriter::Init()
   fClassMap[GenParticle::Class()] = &TreeWriter::ProcessParticles;
   fClassMap[Vertex::Class()] = &TreeWriter::ProcessVertices;
   fClassMap[Track::Class()] = &TreeWriter::ProcessTracks;
+  fClassMap[Hit::Class()] = &TreeWriter::ProcessHits;
   fClassMap[Tower::Class()] = &TreeWriter::ProcessTowers;
   fClassMap[Photon::Class()] = &TreeWriter::ProcessPhotons;
   fClassMap[Electron::Class()] = &TreeWriter::ProcessElectrons;
@@ -305,6 +306,41 @@ void TreeWriter::ProcessVertices(ExRootTreeBranch *branch, TObjArray *array)
     }
 
   }
+}
+
+//------------------------------------------------------------------------------
+
+void TreeWriter::ProcessHits(ExRootTreeBranch *branch, TObjArray *array)
+{
+  
+  TIter iterator(array);
+  Candidate *candidate = 0;
+  Hit *entry = 0;
+
+  Double_t r, z, phi;
+  Int_t partIdx;
+  UInt_t vxTruth;
+
+  // loop over all vertices
+  iterator.Reset();
+  while((candidate = static_cast<Candidate*>(iterator.Next())))
+  {
+    r = candidate->Xd;
+    z = candidate->Yd;
+    phi = candidate->Zd;
+    partIdx = candidate->partIdx;
+    vxTruth = candidate->vxTruth;
+
+    entry = static_cast<Hit*>(branch->NewEntry());
+
+    entry->r = r;
+    entry->z = z;
+    entry->phi = phi;
+    entry->partIdx = partIdx;
+    entry->vxTruth = vxTruth;
+
+  }
+   
 }
 
 

@@ -177,6 +177,21 @@ public:
 
 //---------------------------------------------------------------------------
 
+class Hit: public TObject
+{
+public:
+
+  Float_t r; // hit position (r component)
+  Float_t z; // hit position (z component)
+  Float_t phi; // hit position (phi component)
+  Int_t partIdx; // this integer links the hit to a particle
+  UInt_t vxTruth;
+
+  ClassDef(Hit, 1)
+};
+
+//---------------------------------------------------------------------------
+
 class Vertex: public SortableObject
 {
 public:
@@ -200,6 +215,8 @@ public:
 
   Double_t GenDeltaZ; // distance in z to closest generated vertex
   Double_t BTVSumPT2; // sum pt^2 of tracks attached to the secondary vertex
+
+  UInt_t vxTruth;
 
   TRefArray Constituents; // references to constituents
 
@@ -295,6 +312,8 @@ class Electron: public SortableObject
 {
 public:
 
+  UInt_t vxTruth;
+
   Float_t PT; // electron transverse momentum
   Float_t Eta; // electron pseudorapidity
   Float_t Phi; // electron azimuthal angle
@@ -327,6 +346,8 @@ public:
 class Muon: public SortableObject
 {
 public:
+
+  UInt_t vxTruth;
 
   Float_t PT; // muon transverse momentum
   Float_t Eta; // muon pseudorapidity
@@ -431,6 +452,7 @@ class Track: public SortableObject
 {
 public:
   Int_t PID; // HEP ID number
+  UInt_t vxTruth;
 
   Int_t Charge; // track charge
 
@@ -546,6 +568,8 @@ public:
 
   Int_t PID;
 
+  UInt_t vxTruth;
+
   Int_t Status;
   Int_t M1, M2, D1, D2;
 
@@ -636,6 +660,9 @@ public:
   Double_t GenDeltaZ;
   Double_t GenSumPT2;
 
+  // NNVX links
+  Int_t partIdx;
+  
   // N-subjettiness variables
 
   Float_t Tau[5];
