@@ -143,16 +143,17 @@ void SiliconHits::Process()
     double r = pt / (q * fBz) * 1.0E9 / c_light;      // in [m]
 
     // helix initial coordinates
-    double x_c = candidatePosition.X() * 1.0E-3 + r * TMath::Sin(phi_0);
-    double y_c = candidatePosition.Y() * 1.0E-3 - r * TMath::Cos(phi_0);
+    double x_c = candidatePosition.X() * 1.0E-3 + r * TMath::Sin(phi_0) * 1.0E3;
+    double y_c = candidatePosition.Y() * 1.0E-3 - r * TMath::Cos(phi_0) * 1.0E3;
     double z_c = candidatePosition.Z() * 1.0E-3;
 
     double cumul_distance = 0;
     double t = 0;
-    const double step = 1E-10;
-    const double stop_criterion = 3E4;
-    const double hit_precision = 1E-1;
+    const double stop_criterion = 1E4;  // in [mm]
+    const double hit_precision = 1E0;  // in [mm]
+    double step = hit_precision * 1.0E-3/c_light;  // in [s]
 
+    std::cout << std::endl;
     std::cout << "Origin at " << x_c << " " << y_c << " " << z_c << std::endl;
     std::cout << "pt " << pt << " pz " << pz << std::endl;
     std::cout << "R " << r << std::endl;
@@ -160,9 +161,9 @@ void SiliconHits::Process()
     while (1) {
 
       // compute position in terms of x(t), y(t), z(t)
-      double x_t = x_c + r * TMath::Sin(omega * t - phi_0) * 1.0E-3;
-      double y_t = y_c + r * TMath::Cos(omega * t - phi_0) * 1.0E-3;
-      double z_t = z_c + pz * 1.0E9 / c_light / gammam * t * 1.0E-3;
+      double x_t = x_c + r * TMath::Sin(omega * t - phi_0) * 1.0E3; // in [mm]
+      double y_t = y_c + r * TMath::Cos(omega * t - phi_0) * 1.0E3; // in [mm]
+      double z_t = z_c + pz * 1.0E9 / c_light / gammam * t * 1.0E3; // in [mm]
       t += step;
       cumul_distance += step*c_light;
 
