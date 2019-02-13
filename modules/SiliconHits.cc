@@ -124,148 +124,102 @@ void SiliconHits::Process()
     candidatePosition = candidate->InitialPosition;
     candidateMomentum = candidate->Momentum;
 
-    double track_R = 10000. * candidateMomentum.Pt() / (0.3 * 20.); // (R in mm, B in kGauss and p in GeV/c
-    double track_theta = 2.*TMath::ATan(TMath::Exp(-1.*candidateMomentum.Eta()));
-    double r_prime = sqrt(candidatePosition.X() * 1.0E-3 * candidatePosition.X() * 1.0E-3 + candidatePosition.Y() * 1.0E-3 * candidatePosition.Y() * 1.0E-3);
+    // initial transverse momentum p_{T0}: Part->pt
+    // initial transverse momentum direction phi_0 = -atan(p_X0/p_Y0)
+    // relativistic gamma: gamma = E/mc^2; gammam = gamma * m
+    // gyration frequency omega = q/(gamma m) fBz
+    // helix radius r = p_{T0} / (omega gamma m)
 
-    /*
-        std::cout << "***********************" << std::endl;
-        std::cout << "     NEW candidate     " << std::endl;
-        std::cout << "track_R " << track_R << std::endl;
-        std::cout << "track_theta " << track_theta << std::endl;
-        std::cout << "r_prime " << r_prime << std::endl;
-    */
-    bool spiraling = false;
+    const double c_light = 2.99792458E8;
+    const double fBz = 2.0; // in Tesla
 
-    for (UInt_t nlayer = 0; nlayer < barrel_r.size(); nlayer++) {
+    double pt = candidateMomentum.Pt();
+    double pz = candidateMomentum.Pz();
+    double phi_0 = TMath::ATan2(candidateMomentum.Py(), candidateMomentum.Px() ); // [rad] in [-pi, pi]
+    double q = candidate->Charge;
 
-      double hit_r = barrel_r[nlayer];
-      double hit_z = (hit_r - r_prime) / TMath::Tan(track_theta) + candidatePosition.Z() * 1.0E-3;
+    double gammam = candidateMomentum.E() * 1.0E9 / (c_light * c_light);  // gammam in [eV/c^2]
+    double omega = candidate->Charge * fBz / (gammam);  // omega is here in [89875518/s]
+    double r = pt / (q * fBz) * 1.0E9 / c_light;      // in [m]
 
-      if (2 * track_R > barrel_r[nlayer]) {
+    // helix initial coordinates
+    double x_c = candidatePosition.X() * 1.0E-3 + r * TMath::Sin(phi_0);
+    double y_c = candidatePosition.Y() * 1.0E-3 - r * TMath::Cos(phi_0);
+    double z_c = candidatePosition.Z() * 1.0E-3;
 
-        if (fabs(hit_z) > barrel_z[nlayer]) continue;
+    double cumul_distance = 0;
+    double t = 0;
+    const double step = 1E-10;
+    const double stop_criterion = 3E4;
+    const double hit_precision = 1E-1;
 
-        double hit_phi = (hit_z - candidatePosition.Z() * 1.0E-3) / (2. * track_R * TMath::Tan(track_theta)) + candidateMomentum.Phi();
-        if (candidate->Charge < 0) {
-          hit_phi = -(hit_z - candidatePosition.Z() * 1.0E-3) / (2. * track_R * TMath::Tan(track_theta)) + candidateMomentum.Phi();
+    std::cout << "Origin at " << x_c << " " << y_c << " " << z_c << std::endl;
+    std::cout << "pt " << pt << " pz " << pz << std::endl;
+    std::cout << "R " << r << std::endl;
+
+    while (1) {
+
+      // compute position in terms of x(t), y(t), z(t)
+      double x_t = x_c + r * TMath::Sin(omega * t - phi_0) * 1.0E-3;
+      double y_t = y_c + r * TMath::Cos(omega * t - phi_0) * 1.0E-3;
+      double z_t = z_c + pz * 1.0E9 / c_light / gammam * t * 1.0E-3;
+      t += step;
+      cumul_distance += step*c_light;
+
+      double pos_r = TMath::Hypot(x_t, y_t);
+
+      for (UInt_t nlayer = 0; nlayer < barrel_r.size(); nlayer++) {
+
+        if(fabs(z_t) > barrel_z[nlayer]) continue;
+
+        if(fabs(pos_r-barrel_r[nlayer]) < hit_precision){
+
+          double hit_r = pos_r;
+          double hit_phi = TMath::ATan2(y_t, x_t);
+          double hit_z = z_t;
+
+          new_hit = factory->NewCandidate();
+          new_hit->Xd = hit_r;
+          new_hit->Yd = hit_z;
+          new_hit->Zd = hit_phi;
+          new_hit->partIdx = my_partIdx;
+          new_hit->vxTruth = candidate->vxTruth;
+          fOutputArray->Add(new_hit);
+
+          cumul_distance = 0;
         }
-        hit_phi = fmod(hit_phi + TMath::Pi(), 2.*TMath::Pi());
-        if (hit_phi < 0) {
-          hit_phi += 2.*TMath::Pi();
-        }
-        hit_phi -= TMath::Pi();
-
-        /*
-          double hit_phi = TMath::ASin(hit_r / (2 * track_R) ) - candidateMomentum.Phi();
-          if (candidate->Charge < 0) {
-            hit_phi = -TMath::ASin(hit_r / (2 * track_R) ) - candidateMomentum.Phi();
-          }
-          hit_phi = fmod(hit_phi + TMath::Pi(), 2.*TMath::Pi());
-          if (hit_phi < 0) {
-            hit_phi += 2.*TMath::Pi();
-          }
-          hit_phi -= TMath::Pi();
-        */
-        new_hit = factory->NewCandidate();
-        new_hit->Xd = hit_r;
-        new_hit->Yd = hit_z;
-        new_hit->Zd = hit_phi;
-        new_hit->partIdx = my_partIdx;
-        new_hit->vxTruth = candidate->vxTruth;
-
-        fOutputArray->Add(new_hit);
-
-      }
-      /*
-      else {
-        if (!spiraling) {
-
-          spiraling = true;
-          UInt_t layer_index = nlayer-1;
-          int change = -1;
-
-          if(layer_index<0) continue;
-
-          while (fabs(hit_z) < barrel_z[layer_index]) {
-
-              hit_z += (hit_r - r_prime) / TMath::Tan(track_theta);
-              hit_r = barrel_r[layer_index];
-
-              double hit_phi = (hit_z - candidatePosition.Z() * 1.0E-3) / (2. * track_R * TMath::Tan(track_theta)) + candidateMomentum.Phi();
-              if (candidate->Charge < 0) {
-                hit_phi = -(hit_z - candidatePosition.Z() * 1.0E-3) / (2. * track_R * TMath::Tan(track_theta)) + candidateMomentum.Phi();
-              }
-              hit_phi = fmod(hit_phi + TMath::Pi(), 2.*TMath::Pi());
-              if (hit_phi < 0) {
-                hit_phi += 2.*TMath::Pi();
-              }
-              hit_phi -= TMath::Pi();
-
-              new_hit = factory->NewCandidate();
-              new_hit->Xd = hit_r;
-              new_hit->Yd = hit_z;
-              new_hit->Zd = hit_phi;
-              new_hit->partIdx = my_partIdx;
-              new_hit->vxTruth = candidate->vxTruth;
-
-              fOutputArray->Add(new_hit);
-
-              layer_index += change;
-              if(layer_index==0) change = 1;
-              if(layer_index==nlayer-1) change = -1;
-
-              if(layer_index<0) break;
-
-            }
-          }
-        }*/
       }
 
       for (UInt_t ndisk = 0; ndisk < disk_z.size(); ndisk++) {
 
-        double hit_z = disk_z[ndisk];
-        if ( hit_z < candidatePosition.Z() * 1.0E-3 && ((track_theta < TMath::Pi() / 2.) && (track_theta > -TMath::Pi() / 2.)) ) continue;
-        if ( hit_z > candidatePosition.Z() * 1.0E-3 && ((track_theta > TMath::Pi() / 2.) || (track_theta < -TMath::Pi() / 2.)) ) continue;
+        if(pos_r < disk_rmin[ndisk] || pos_r > disk_rmax[ndisk]) continue;
 
-        double z_lenght = hit_z - candidatePosition.Z() * 1.0E-3;
-        double hit_r = z_lenght * TMath::Tan(track_theta) + r_prime;
-        if (fabs(hit_r) < disk_rmin[ndisk] || fabs(hit_r) > disk_rmax[ndisk]) continue;
-        double hit_phi = (hit_z - candidatePosition.Z() * 1.0E-3) / (2. * track_R * TMath::Tan(track_theta)) + candidateMomentum.Phi();
-        if (candidate->Charge < 0) {
-          hit_phi = -(hit_z - candidatePosition.Z() * 1.0E-3) / (2. * track_R * TMath::Tan(track_theta)) + candidateMomentum.Phi();
+        if(fabs(z_t-disk_z[ndisk]) < hit_precision){
+
+          double hit_r = pos_r;
+          double hit_phi = TMath::ATan2(y_t, x_t);
+          double hit_z = z_t;
+
+          new_hit = factory->NewCandidate();
+          new_hit->Xd = hit_r;
+          new_hit->Yd = hit_z;
+          new_hit->Zd = hit_phi;
+          new_hit->partIdx = my_partIdx;
+          new_hit->vxTruth = candidate->vxTruth;
+          fOutputArray->Add(new_hit);
+
+          cumul_distance = 0;
         }
-        hit_phi = fmod(hit_phi + TMath::Pi(), 2.*TMath::Pi());
-        if (hit_phi < 0) {
-          hit_phi += 2.*TMath::Pi();
-        }
-        hit_phi -= TMath::Pi();
-
-        /*
-              double hit_phi = TMath::ASin(hit_r / 2.*track_R) - candidateMomentum.Phi();
-
-              if (candidate->Charge < 0) {
-                hit_phi = -TMath::ASin(hit_r / 2.*track_R) - candidateMomentum.Phi();
-              }
-              hit_phi = fmod(hit_phi + TMath::Pi(), 2.*TMath::Pi());
-              if (hit_phi < 0) {
-                hit_phi += 2.*TMath::Pi();
-              }
-              hit_phi -= TMath::Pi();
-        */
-
-        new_hit = factory->NewCandidate();
-        new_hit->Xd = fabs(hit_r);
-        new_hit->Yd = hit_z;
-        new_hit->Zd = hit_phi;
-        new_hit->partIdx = my_partIdx;
-        new_hit->vxTruth = candidate->vxTruth;
-
-        fOutputArray->Add(new_hit);
       }
 
-      my_partIdx++;
+      if(cumul_distance > stop_criterion){
+        std::cout << "stopping at " << pos_r << " " << z_t << std::endl;
+        break;
+      }
     }
+
+    my_partIdx++;
   }
+}
 
 //------------------------------------------------------------------------------

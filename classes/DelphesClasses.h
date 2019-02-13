@@ -135,6 +135,7 @@ public:
 
   Int_t Status; // particle status | hepevt.isthep[number]
   Int_t IsPU; // 0 or 1 for particles from pile-up interactions
+  UInt_t vxTruth;
 
   Int_t M1; // particle 1st mother | hepevt.jmohep[number][0] - 1
   Int_t M2; // particle 2nd mother | hepevt.jmohep[number][1] - 1

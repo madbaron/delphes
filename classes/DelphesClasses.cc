@@ -118,7 +118,7 @@ TLorentzVector Tower::P4() const
 //------------------------------------------------------------------------------
 
 Candidate::Candidate() :
-  PID(0), Status(0), M1(-1), M2(-1), D1(-1), D2(-1),
+  PID(0), vxTruth(0), Status(0), M1(-1), M2(-1), D1(-1), D2(-1),
   Charge(0), Mass(0.0),
   IsPU(0), IsRecoPU(0), IsConstituent(0), IsFromConversion(0),
   ClusterIndex(-1), ClusterNDF(0), ClusterSigma(0), SumPT2(0), BTVSumPT2(0), GenDeltaZ(0), GenSumPT2(0),
@@ -255,6 +255,7 @@ void Candidate::Copy(TObject &obj) const
 
   object.PID = PID;
   object.Status = Status;
+  object.vxTruth = vxTruth;
   object.M1 = M1;
   object.M2 = M2;
   object.D1 = D1;
@@ -390,6 +391,7 @@ void Candidate::Clear(Option_t* option)
   ResetBit(kIsReferenced);
   PID = 0;
   Status = 0;
+  vxTruth = 0;
   M1 = -1; M2 = -1; D1 = -1; D2 = -1;
   Charge = 0;
   Mass = 0.0;
