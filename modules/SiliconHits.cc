@@ -19,10 +19,11 @@
 
 /** \class SiliconHits
  *
- *  Selects candidates from the InputArray according to the efficiency formula.
+ *  Finds hits in idealised tracking detector
  *
- *  \author P. Demin - UCL, Louvain-la-Neuve
- *
+ *  \author K. Albertsson - CERN LTU/EISLAB
+ *  \author F. Meloni - DESY
+  *
  */
 
 #include "modules/SiliconHits.h"
