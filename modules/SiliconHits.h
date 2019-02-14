@@ -31,8 +31,9 @@
 
 #include <deque>
 
-class TObjArray;
+class Candidate;
 class DelphesFormula;
+class TObjArray;
 
 class SiliconHits: public DelphesModule
 {
@@ -47,6 +48,8 @@ public:
 
 private:
 
+  void Track(const Candidate * candidate, size_t partIdx);
+
   std::vector<float> barrel_r;
   std::vector<float> barrel_z;
 
@@ -54,6 +57,7 @@ private:
   std::vector<float> disk_rmax;
   std::vector<float> disk_z;
 
+  size_t fDebug; //!
 
   TIterator *fItInputArray; //!
   const TObjArray *fInputArray; //!
