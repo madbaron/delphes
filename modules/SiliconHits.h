@@ -21,9 +21,10 @@
 
 /** \class SiliconHits
  *
- *  Finds hits in an ideal Silicon Detector
+ *  Finds hits in idealised tracking detector
  *
- *  \author F. Meloni, DESY
+ *  \author K. Albertsson - CERN LTU/EISLAB
+ *  \author F. Meloni - DESY
  *
  */
 

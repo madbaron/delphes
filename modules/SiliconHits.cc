@@ -23,7 +23,7 @@
  *
  *  \author K. Albertsson - CERN LTU/EISLAB
  *  \author F. Meloni - DESY
-  *
+ *
  */
 
 #include "modules/SiliconHits.h"
