@@ -58,7 +58,7 @@ const double c_light = 2.99792458E8;
 struct Helix {
   Helix(point_t centre_xyz, double R, double omega, double phi_0, double pz,
         double gammam) : centre_xyz(centre_xyz), R(R), omega(omega),
-                         phi_0(phi_0), pz(pz), gammam(gammam) {}
+    phi_0(phi_0), pz(pz), gammam(gammam) {}
   Helix(const Candidate * candidate, double Bz) {
     TLorentzVector candidatePosition = candidate->InitialPosition;
     TLorentzVector candidateMomentum = candidate->Momentum;
@@ -73,17 +73,19 @@ struct Helix {
     R = pt / (q * Bz) * 1.0E9 / c_light;      // in [m]
 
     // helix initial coordinates
-    double x_c = candidatePosition.X() * 1.0E-3 + R * TMath::Sin(phi_0) * 1.0E3;
-    double y_c = candidatePosition.Y() * 1.0E-3 - R * TMath::Cos(phi_0) * 1.0E3;
-    double z_c = candidatePosition.Z() * 1.0E-3;
+    double x_c = candidatePosition.X() + R * TMath::Sin(phi_0) * 1.0E3;
+    double y_c = candidatePosition.Y() - R * TMath::Cos(phi_0) * 1.0E3;
+    double z_c = candidatePosition.Z();
 
     centre_xyz = {x_c, y_c, z_c};
     start_xyz = {candidatePosition.X(),
                  candidatePosition.Y(),
-                 candidatePosition.Z()};
+                 candidatePosition.Z()
+                };
     start_rphiz = {TMath::Hypot(candidatePosition.X(), candidatePosition.Y()),
                    TMath::ATan2(candidatePosition.Y(), candidatePosition.X()),
-                   candidatePosition.Z()};
+                   candidatePosition.Z()
+                  };
   }
 
   point_t operator()(double t) const {
@@ -138,14 +140,14 @@ public:
 };
 
 double bisect_barrel(const Helix & helix, double t_start, double t_end,
-                     double barrel_r, double precision=1e-6, size_t max_iter=100) {
+                     double barrel_r, double precision = 1e-6, size_t max_iter = 100) {
 
   if (t_start > t_end) {
     std::swap(t_start, t_end);
   }
 
-  auto is_before = [](double r, double barrel_r){return r < barrel_r;};
-  auto is_after = [](double r, double barrel_r){return r >= barrel_r;};
+  auto is_before = [](double r, double barrel_r) {return r < barrel_r;};
+  auto is_after = [](double r, double barrel_r) {return r >= barrel_r;};
   auto is_close = [precision](double r, double barrel_r) {
     return fabs(r - barrel_r) < precision;
   };
@@ -174,13 +176,13 @@ double bisect_barrel(const Helix & helix, double t_start, double t_end,
 }
 
 double bisect_disk(const Helix & helix, double t_start, double t_end,
-                   double disk_z, double precision=1e-6, size_t max_iter=100) {
+                   double disk_z, double precision = 1e-6, size_t max_iter = 100) {
   if (t_start > t_end) {
     std::swap(t_start, t_end);
   }
 
-  auto is_before = [](double z, double disk_z){return z < disk_z;};
-  auto is_after = [](double z, double disk_z){return z >= disk_z;};
+  auto is_before = [](double z, double disk_z) {return z < disk_z;};
+  auto is_after = [](double z, double disk_z) {return z >= disk_z;};
   auto is_close = [precision](double z, double disk_z) {
     return fabs(z - disk_z) < precision;
   };
@@ -209,18 +211,24 @@ SiliconHits::SiliconHits() : fDebug(0), fItInputArray(0)
   std::vector<double> sct_barrel_z {746.00, 746., 746., 746.};
 
   std::vector<double> pix_disk_rmin = {89., 89., 89.,
-                                       89., 89., 89.};
+                                       89., 89., 89.
+                                      };
   std::vector<double> pix_disk_rmax = {150., 150., 150.,
-                                       150., 150., 150.};
-  std::vector<double> pix_disk_z = {-650., -580., -495.,
-                                    +495., +580., +650.};
+                                       150., 150., 150.
+                                      };
+  std::vector<double> pix_disk_z = { -650., -580., -495.,
+                                     +495., +580., +650.
+                                   };
 
   std::vector<double> sct_disk_rmin = {338., 270., 270., 270., 270., 270., 338., 408., 439.,
-                                       338., 270., 270., 270., 270., 270., 338., 408., 439.};
+                                       338., 270., 270., 270., 270., 270., 338., 408., 439.
+                                      };
   std::vector<double> sct_disk_rmax = {560., 560., 560., 560., 560., 560., 560., 560., 560.,
-                                       560., 560., 560., 560., 560., 560., 560., 560., 560.};
-  std::vector<double> sct_disk_z = {-847.5, -934., -1084., -1262., -1377., -1747., -2072., -2500., -2713.,
-                                    +847.5, +934., +1084., +1262., +1377., +1747., +2072., +2500., +2713.};
+                                       560., 560., 560., 560., 560., 560., 560., 560., 560.
+                                      };
+  std::vector<double> sct_disk_z = { -847.5, -934., -1084., -1262., -1377., -1747., -2072., -2500., -2713.,
+                                     +847.5, +934., +1084., +1262., +1377., +1747., +2072., +2500., +2713.
+                                   };
 
   // Add pixel detector planes
   barrel_r.insert(barrel_r.end(), pix_barrel_r.begin(), pix_barrel_r.end());
@@ -288,7 +296,7 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
   double cumul_distance = 0;
   const double stop_criterion = 1E4;  // in [mm]
   const double hit_precision = 1E0;  // in [mm]
-  double step_size = hit_precision * 1.0E-3/c_light;  // in [s]
+  double step_size = hit_precision * 1.0E-3 / c_light; // in [s]
 
   if (fDebug > 0) {
     point_t p = helix.start_xyz;
@@ -299,9 +307,10 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
   }
 
   for (size_t iStep = 0; true; ++iStep) {
+
     double t = iStep * step_size;
-    double prev_t = (iStep==0) ? (0) : (iStep-1) * step_size;
-    cumul_distance += step_size*c_light;
+    double prev_t = (iStep == 0) ? (0) : (iStep - 1) * step_size;
+    cumul_distance += step_size * c_light;
 
     // compute position
     double r_t = helix.r(t);
@@ -312,7 +321,7 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
     // Interactions with barrel
     for (UInt_t nlayer = 0; nlayer < barrel_r.size(); nlayer++) {
 
-      if(fabs(z_t) > barrel_z[nlayer]) continue;
+      if (fabs(z_t) > barrel_z[nlayer]) continue;
 
       double barrel_rval = barrel_r[nlayer];
 
@@ -347,7 +356,7 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
     // Interactions with end cap discs
     for (UInt_t ndisk = 0; ndisk < disk_z.size(); ndisk++) {
 
-      if(r_t < disk_rmin[ndisk] or r_t > disk_rmax[ndisk]) continue;
+      if (r_t < disk_rmin[ndisk] or r_t > disk_rmax[ndisk]) continue;
 
       double disk_zval = disk_z[ndisk];
 
@@ -371,7 +380,7 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
 
         cumul_distance = 0;
       }
-    } 
+    }
 
     if (fabs(z_t) > 3000. or fabs(r_t) > 1000.0) {
       if (fDebug > 0) {
@@ -381,7 +390,7 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
       break;
     }
 
-    if(cumul_distance > stop_criterion){
+    if (cumul_distance > stop_criterion) {
       if (fDebug > 0) {
         std::cout << "Max track length reached at r=" << r_t << " z=" << z_t << std::endl;
         std::cout << "Tracking for particle " << partIdx << " done at step " << iStep << std::endl;
@@ -410,9 +419,9 @@ void SiliconHits::Process()
   }
 
   auto end = std::chrono::high_resolution_clock::now();
-  auto secs = std::chrono::duration_cast<std::chrono::duration<double>>(end-start);
+  auto secs = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
 
-  std::cout << "Simulated " << num_particles << " particles in " << secs.count()*1000. << " milliseconds (" << 1.*num_particles/secs.count() << " particles/s)";
+  std::cout << "Simulated " << num_particles << " particles in " << secs.count() * 1000. << " milliseconds (" << 1.*num_particles / secs.count() << " particles/s)" << std::endl;
 }
 
 //------------------------------------------------------------------------------
