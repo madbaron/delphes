@@ -55,10 +55,15 @@ using namespace std;
 using point_t = std::tuple<double, double, double>;
 const double c_light = 2.99792458E8;
 
+double sign(double x) {
+  // `signbit` returns 0.0 for positive numbers and 1.0 for negative numbers.
+  return -(2*signbit(x) - 1.0);
+}
+
 struct Helix {
-  Helix(point_t centre_xyz, double R, double omega, double phi_0, double pz,
-        double gammam) : centre_xyz(centre_xyz), R(R), omega(omega),
-    phi_0(phi_0), pz(pz), gammam(gammam) {}
+  // Helix(point_t xyz_c, double R, double omega, double phi_0, double pz,
+  //       double gammam) : xyz_c(xyz_c), R(R), omega(omega),
+  //   phi_0(phi_0), pz(pz), gammam(gammam) {}
   Helix(const Candidate * candidate, double Bz) {
     TLorentzVector candidatePosition = candidate->InitialPosition;
     TLorentzVector candidateMomentum = candidate->Momentum;
@@ -73,11 +78,13 @@ struct Helix {
     R = pt / (q * Bz) * 1.0E9 / c_light;      // in [m]
 
     // helix initial coordinates
-    double x_c = candidatePosition.X() + R * TMath::Sin(phi_0) * 1.0E3;
-    double y_c = candidatePosition.Y() - R * TMath::Cos(phi_0) * 1.0E3;
-    double z_c = candidatePosition.Z();
+    x_c = candidatePosition.X() + R * TMath::Sin(phi_0) * 1.0E3;
+    y_c = candidatePosition.Y() - R * TMath::Cos(phi_0) * 1.0E3;
+    z_c = candidatePosition.Z();
+    r_c = TMath::Hypot(x_c, y_c);
+    phi_c = TMath::ATan2(y_c, x_c);
 
-    centre_xyz = {x_c, y_c, z_c};
+    // xyz_c = {x_c, y_c, z_c};
     start_xyz = {candidatePosition.X(),
                  candidatePosition.Y(),
                  candidatePosition.Z()
@@ -93,22 +100,22 @@ struct Helix {
   }
 
   point_t xyz(double t) const {
-    double x_t = std::get<0>(centre_xyz) + R * TMath::Sin(omega * t - phi_0) * 1.0E3; // in [mm]
-    double y_t = std::get<1>(centre_xyz) + R * TMath::Cos(omega * t - phi_0) * 1.0E3; // in [mm]
-    double z_t = std::get<2>(centre_xyz) + pz * 1.0E9 / c_light / gammam * t * 1.0E3; // in [mm]
+    double x_t = x_c + R * TMath::Sin(omega * t - phi_0) * 1.0E3; // in [mm]
+    double y_t = y_c + R * TMath::Cos(omega * t - phi_0) * 1.0E3; // in [mm]
+    double z_t = z_c + pz * 1.0E9 / c_light / gammam * t * 1.0E3; // in [mm]
     return {x_t, y_t, z_t};
   }
 
   double x(double t) const {
-    return std::get<0>(centre_xyz) + R * TMath::Sin(omega * t - phi_0) * 1.0E3; // in [mm]
+    return x_c + R * TMath::Sin(omega * t - phi_0) * 1.0E3; // in [mm]
   }
 
   double y(double t) const {
-    return std::get<1>(centre_xyz) + R * TMath::Cos(omega * t - phi_0) * 1.0E3; // in [mm]
+    return y_c + R * TMath::Cos(omega * t - phi_0) * 1.0E3; // in [mm]
   }
 
   double z(double t) const {
-    return std::get<2>(centre_xyz) + pz * 1.0E9 / c_light / gammam * t * 1.0E3; // in [mm]
+    return z_c + pz * 1.0E9 / c_light / gammam * t * 1.0E3; // in [mm]
   }
 
   point_t rphiz(double t) const {
@@ -116,18 +123,29 @@ struct Helix {
   }
 
   double r(double t) const {
+    // R*R + r_c*r_c + r_c*TMath::Sin(omega*t - phi_0 + phi_c);
     return TMath::Hypot(x(t), y(t));
   }
 
   double phi(double t) const {
+    // return omega * t - phi_0;
     return TMath::ATan2(y(t), x(t));
   }
 
+  double dr(double t) const {
+    return r_c*cos(omega*t - phi_0 + phi_c);
+  }
+
 public:
-  // Centre of helix
-  point_t centre_xyz;
+  //point_t xyz_c; // Centre of helix
   point_t start_xyz;
   point_t start_rphiz;
+
+  double x_c;
+  double y_c;
+  double z_c;
+  double r_c;
+  double phi_c;
 
   double R;
   double omega;
@@ -146,8 +164,8 @@ double bisect_barrel(const Helix & helix, double t_start, double t_end,
     std::swap(t_start, t_end);
   }
 
-  auto is_before = [](double r, double barrel_r) {return r < barrel_r;};
-  auto is_after = [](double r, double barrel_r) {return r >= barrel_r;};
+  auto is_before = [](double r, double barrel_r, double dir) {return dir*r < dir*barrel_r;};
+  auto is_after = [](double r, double barrel_r, double dir) {return dir*r >= dir*barrel_r;};
   auto is_close = [precision](double r, double barrel_r) {
     return fabs(r - barrel_r) < precision;
   };
@@ -155,6 +173,15 @@ double bisect_barrel(const Helix & helix, double t_start, double t_end,
   for (size_t iIter = 0; iIter < max_iter; ++iIter) {
     double t = t_start + (t_end - t_start) / 2.0;
     double r = helix.r(t);
+
+    // We need to ensure the comparison of before and after are right, they
+    // change sign depending on the direction of travel in r(t).
+    double dr = helix.dr(t);
+    double dir = sign(dr);
+    if (is_close(dr, 0.0)) {
+      dr = helix.dr(t+0.001);
+      dir = sign(dr);
+    }
 
     // if (fDebug > 1) {
     //   std::cout << "iter: " << iIter
@@ -168,8 +195,8 @@ double bisect_barrel(const Helix & helix, double t_start, double t_end,
     // }
 
     if (is_close(r, barrel_r)) {return t;}
-    else if (is_before(r, barrel_r)) {t_start = t;}
-    else if (is_after(r, barrel_r)) {t_end = t;}
+    else if (is_before(r, barrel_r, dir)) {t_start = t;}
+    else if (is_after(r, barrel_r, dir)) {t_end = t;}
   }
 
   return t_start + (t_end - t_start) / 2.0;
@@ -333,8 +360,17 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
                   << std::endl;
       }
 
-      bool prev_was_before = (prev_r_t < barrel_rval);
-      bool curr_is_after = (r_t >= barrel_rval);
+      // We need to ensure the comparison of before and after are right, they
+      // change sign depending on the direction of travel in r(t).
+      double dr = helix.dr(t);
+      double dir = sign(dr);
+      if (abs(dr - 0.0) < 1e-6) {
+        dr = helix.dr(t+0.001);
+        dir = sign(dr);
+      }
+
+      bool prev_was_before = (dir*prev_r_t < dir*barrel_rval);
+      bool curr_is_after = (dir*r_t >= dir*barrel_rval);
       if (prev_was_before and curr_is_after) {
 
         double t_exact = bisect_barrel(helix, prev_t, t, barrel_rval);
@@ -360,8 +396,8 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
 
       double disk_zval = disk_z[ndisk];
 
-      bool is_same_sign = (signbit(prev_z_t) == signbit(disk_zval) and
-                           signbit(z_t) == signbit(prev_z_t));
+      bool is_same_sign = (sign(prev_z_t) == sign(disk_zval) and
+                           sign(z_t) == sign(prev_z_t));
       bool prev_was_before = (fabs(prev_z_t) < fabs(disk_zval));
       bool curr_is_after = (fabs(z_t) >= fabs(disk_zval));
       if (prev_was_before and curr_is_after and is_same_sign) {
