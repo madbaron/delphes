@@ -234,27 +234,27 @@ SiliconHits::SiliconHits() : fDebug(0), fItInputArray(0)
   std::vector<double> pix_barrel_r {33.4, 50.5, 88.5, 122.5};
   std::vector<double> sct_barrel_r {299., 371., 443., 514.};
 
-  std::vector<double> pix_barrel_z {330.15, 401., 401., 401.};
-  std::vector<double> sct_barrel_z {746.00, 746., 746., 746.};
+  std::vector<double> pix_barrel_z {330.15, 405.5, 405.5, 405.5};
+  std::vector<double> sct_barrel_z {746.00, 746.0, 746.0, 746.0};
 
-  std::vector<double> pix_disk_rmin = {89., 89., 89.,
-                                       89., 89., 89.
+  std::vector<double> pix_disk_rmin = {88.8, 88.8, 88.8,
+                                       88.8, 88.8, 88.8
                                       };
-  std::vector<double> pix_disk_rmax = {150., 150., 150.,
-                                       150., 150., 150.
+  std::vector<double> pix_disk_rmax = {149.6, 149.6, 149.6,
+                                       149.6, 149.6, 149.6
                                       };
   std::vector<double> pix_disk_z = { -650., -580., -495.,
                                      +495., +580., +650.
                                    };
 
-  std::vector<double> sct_disk_rmin = {338., 270., 270., 270., 270., 270., 338., 408., 439.,
-                                       338., 270., 270., 270., 270., 270., 338., 408., 439.
+  std::vector<double> sct_disk_rmin = {337.6, 275., 275., 275., 275., 275., 337.6, 408., 438.8,
+                                       337.6, 275., 275., 275., 275., 275., 337.6, 408., 438.8
                                       };
   std::vector<double> sct_disk_rmax = {560., 560., 560., 560., 560., 560., 560., 560., 560.,
                                        560., 560., 560., 560., 560., 560., 560., 560., 560.
                                       };
-  std::vector<double> sct_disk_z = { -847.5, -934., -1084., -1262., -1377., -1747., -2072., -2500., -2713.,
-                                     +847.5, +934., +1084., +1262., +1377., +1747., +2072., +2500., +2713.
+  std::vector<double> sct_disk_z = { -853.8, -934., -1091.5, -1299.9, -1399.7, -1771.4, -2115.2, -2505., -2720.2,
+                                     +853.8, +934., +1091.5, +1299.9, +1399.7, +1771.4, +2115.2, +2505., +2720.2
                                    };
 
   // Add pixel detector planes
