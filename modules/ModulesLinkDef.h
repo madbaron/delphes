@@ -73,6 +73,7 @@
 #include "modules/VertexFinderDA4D.h"
 #include "modules/ExampleModule.h"
 #include "modules/SiliconHits.h"
+#include "modules/DisplacedVertexDumper.h"
 
 #ifdef __CINT__
 
@@ -128,5 +129,6 @@
 #pragma link C++ class VertexFinderDA4D+;
 #pragma link C++ class ExampleModule+;
 #pragma link C++ class SiliconHits+;
+#pragma link C++ class DisplacedVertexDumper+;
 
 #endif

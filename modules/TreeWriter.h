@@ -55,6 +55,7 @@ private:
 
   void ProcessParticles(ExRootTreeBranch *branch, TObjArray *array);
   void ProcessVertices(ExRootTreeBranch *branch, TObjArray *array);
+  void ProcessDisplacedVertices(ExRootTreeBranch *branch, TObjArray *array);
   void ProcessHits(ExRootTreeBranch *branch, TObjArray *array);
   void ProcessTracks(ExRootTreeBranch *branch, TObjArray *array);
   void ProcessTowers(ExRootTreeBranch *branch, TObjArray *array);

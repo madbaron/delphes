@@ -444,7 +444,8 @@ tmp/modules/ModulesDict.$(SrcSuf): \
 	modules/VertexFinder.h \
 	modules/VertexFinderDA4D.h \
 	modules/ExampleModule.h \
-	modules/SiliconHits.h
+	modules/SiliconHits.h \
+	modules/DisplacedVertexDumper.h
 tmp/modules/ModulesDict$(PcmSuf): \
 	tmp/modules/ModulesDict.$(SrcSuf)
 ModulesDict$(PcmSuf): \
@@ -718,6 +719,15 @@ tmp/modules/DenseTrackFilter.$(ObjSuf): \
 	external/ExRootAnalysis/ExRootResult.h \
 	external/ExRootAnalysis/ExRootFilter.h \
 	external/ExRootAnalysis/ExRootClassifier.h
+tmp/modules/DisplacedVertexDumper.$(ObjSuf): \
+	modules/DisplacedVertexDumper.$(SrcSuf) \
+	modules/DisplacedVertexDumper.h \
+	classes/DelphesClasses.h \
+	classes/DelphesFactory.h \
+	classes/DelphesFormula.h \
+	external/ExRootAnalysis/ExRootResult.h \
+	external/ExRootAnalysis/ExRootFilter.h \
+	external/ExRootAnalysis/ExRootClassifier.h
 tmp/modules/Efficiency.$(ObjSuf): \
 	modules/Efficiency.$(SrcSuf) \
 	modules/Efficiency.h \
@@ -862,9 +872,9 @@ tmp/modules/ParticlePropagator.$(ObjSuf): \
 	classes/DelphesClasses.h \
 	classes/DelphesFactory.h \
 	classes/DelphesFormula.h \
-	external/ExRootAnalysis/ExRootResult.h \
+	external/ExRootAnalysis/ExRootClassifier.h \
 	external/ExRootAnalysis/ExRootFilter.h \
-	external/ExRootAnalysis/ExRootClassifier.h
+	external/ExRootAnalysis/ExRootResult.h
 tmp/modules/PdgCodeFilter.$(ObjSuf): \
 	modules/PdgCodeFilter.$(SrcSuf) \
 	modules/PdgCodeFilter.h \
@@ -1142,6 +1152,7 @@ DELPHES_OBJ +=  \
 	tmp/modules/ConstituentFilter.$(ObjSuf) \
 	tmp/modules/Delphes.$(ObjSuf) \
 	tmp/modules/DenseTrackFilter.$(ObjSuf) \
+	tmp/modules/DisplacedVertexDumper.$(ObjSuf) \
 	tmp/modules/Efficiency.$(ObjSuf) \
 	tmp/modules/EnergyScale.$(ObjSuf) \
 	tmp/modules/EnergySmearing.$(ObjSuf) \
@@ -1939,6 +1950,10 @@ external/fastjet/Error.hh: \
 	external/fastjet/internal/base.hh \
 	external/fastjet/config.h \
 	external/fastjet/LimitedWarning.hh
+	@touch $@
+
+modules/DisplacedVertexDumper.h: \
+	classes/DelphesModule.h
 	@touch $@
 
 external/fastjet/internal/TilingExtent.hh: \

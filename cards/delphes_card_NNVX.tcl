@@ -9,6 +9,7 @@ set ExecutionPath {
 
   TrackMergerAll
   SiliconHits
+  DisplacedVertexDumper
 
   TreeWriter
 }
@@ -24,7 +25,7 @@ module PileUpMerger PileUpMerger {
   set VertexOutputArray vertices
 
   # pre-generated minbias input file
-  set PileUpFile /Users/fmeloni/Code/Delphes/MinBias.pileup
+  set PileUpFile /Applications/Delphes/MinBias.pileup
 
   # average expected pile up
   # set MeanPileUp 60
@@ -76,6 +77,17 @@ module Merger TrackMergerAll {
 }
 
 ##############
+# Displaced Vertices
+##############
+
+module DisplacedVertexDumper DisplacedVertexDumper {
+# earlier arrays take precedence over later ones
+# add InputArray InputArray OutputArray
+  set InputArray TrackMergerAll/tracks
+
+}
+
+##############
 # Silicon Hits
 ##############
 
@@ -99,5 +111,6 @@ module TreeWriter TreeWriter {
   add Branch TrackMergerAll/tracks Track Track
   add Branch PileUpMerger/vertices Vertex Vertex
   add Branch SiliconHits/hits Hits Hit 
+  add Branch DisplacedVertexDumper/displacedvertices DisplacedVertices DisplacedVertex 
 
 }

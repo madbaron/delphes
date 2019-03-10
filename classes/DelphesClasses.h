@@ -229,6 +229,23 @@ public:
 
 //---------------------------------------------------------------------------
 
+class DisplacedVertex: public TObject
+{
+public:
+
+  Float_t T; // vertex position (t component)
+  Float_t X; // vertex position (x component)
+  Float_t Y; // vertex position (y component)
+  Float_t Z; // vertex position (z component)
+
+  UInt_t vxTruth;
+  Int_t PID;
+
+  ClassDef(DisplacedVertex, 1)
+};
+
+//---------------------------------------------------------------------------
+
 class MissingET: public TObject
 {
 public:

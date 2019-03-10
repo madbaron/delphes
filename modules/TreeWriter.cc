@@ -70,6 +70,7 @@ void TreeWriter::Init()
 {
   fClassMap[GenParticle::Class()] = &TreeWriter::ProcessParticles;
   fClassMap[Vertex::Class()] = &TreeWriter::ProcessVertices;
+  fClassMap[DisplacedVertex::Class()] = &TreeWriter::ProcessDisplacedVertices;
   fClassMap[Track::Class()] = &TreeWriter::ProcessTracks;
   fClassMap[Hit::Class()] = &TreeWriter::ProcessHits;
   fClassMap[Tower::Class()] = &TreeWriter::ProcessTowers;
@@ -307,6 +308,46 @@ void TreeWriter::ProcessVertices(ExRootTreeBranch *branch, TObjArray *array)
     {
       entry->Constituents.Add(constituent);
     }
+
+  }
+}
+
+//------------------------------------------------------------------------------
+
+void TreeWriter::ProcessDisplacedVertices(ExRootTreeBranch *branch, TObjArray *array)
+{
+  TIter iterator(array);
+  Candidate *candidate = 0;
+  DisplacedVertex *entry = 0;
+
+  const Double_t c_light = 2.99792458E8;
+
+  Double_t x, y, z, t;
+  UInt_t vxTruth;
+  Int_t PID;
+
+  // loop over all vertices
+  iterator.Reset();
+  while((candidate = static_cast<Candidate*>(iterator.Next())))
+  {
+
+    x = candidate->InitialPosition.X()*1.0E-3;
+    y = candidate->InitialPosition.Y()*1.0E-3;
+    z = candidate->InitialPosition.Z()*1.0E-3;
+    t = candidate->InitialPosition.T()*1.0E-3/c_light;
+
+    vxTruth = candidate->vxTruth;
+    PID = candidate->PID;
+
+    entry = static_cast<DisplacedVertex*>(branch->NewEntry());
+
+    entry->X = x;
+    entry->Y = y;
+    entry->Z = z;
+    entry->T = t;
+
+    entry->vxTruth = vxTruth;
+    entry->PID = PID;
 
   }
 }
