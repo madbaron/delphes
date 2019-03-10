@@ -378,8 +378,8 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
         //       z_t close to barrel_z
 
         Candidate * new_hit = factory->NewCandidate();
-        new_hit->Xd = helix.r(t_exact);
-        new_hit->Yd = helix.z(t_exact);
+        new_hit->Xd = helix.r(t_exact) * 1.0E-3;  // in [m]
+        new_hit->Yd = helix.z(t_exact) * 1.0E-3;  // in [m]
         new_hit->Zd = helix.phi(t_exact);
         new_hit->partIdx = partIdx;
         new_hit->vxTruth = candidate->vxTruth;
@@ -407,8 +407,8 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
         //       r_t close to disk_r
 
         Candidate * new_hit = factory->NewCandidate();
-        new_hit->Xd = helix.r(t_exact);
-        new_hit->Yd = helix.z(t_exact);
+        new_hit->Xd = helix.r(t_exact) * 1.0E-3;  // in [m]
+        new_hit->Yd = helix.z(t_exact) * 1.0E-3;  // in [m]
         new_hit->Zd = helix.phi(t_exact);
         new_hit->partIdx = partIdx;
         new_hit->vxTruth = candidate->vxTruth;
