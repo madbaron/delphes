@@ -95,7 +95,6 @@ void DisplacedVertexDumper::Finish()
 
 void DisplacedVertexDumper::Process()
 {
-
   Candidate *candidate;
   Candidate *mother;
   Candidate *candidate_out;
@@ -114,11 +113,13 @@ void DisplacedVertexDumper::Process()
     mother = static_cast<Candidate*>(fInputParticles->At(mpos));
     lastmotherPID = mother->PID;
 
-    while(mpos>0){
+    while(mpos > 0)
+    {
       mother = static_cast<Candidate*>(fInputParticles->At(mpos));
+      mpos = mother->M1;
+      if(mpos >= (UInt_t)fInputParticles->GetSize()) break;
       previousmotherPID = motherPID;
       motherPID = mother->PID;
-      mpos = mother->M1;
     }
 
     // Check radial displacement
