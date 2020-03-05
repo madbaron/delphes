@@ -108,16 +108,21 @@ void DisplacedVertexDumper::Process()
   fItInputArray->Reset();
   while((candidate = static_cast<Candidate*>(fItInputArray->Next())))
   {
+
     candidatePosition = candidate->InitialPosition;
     UInt_t mpos = candidate->M1;
-    mother = static_cast<Candidate*>(fInputParticles->At(mpos));
-    lastmotherPID = mother->PID;
+    if(mpos>=0 && mpos < (UInt_t)fInputParticles->GetSize()){
+      mother = static_cast<Candidate*>(fInputParticles->At(mpos));
+      lastmotherPID = mother->PID;
+    }
+    else{
+      lastmotherPID = -1;
+    }
 
-    while(mpos > 0)
+    while(mpos >= 0 && mpos < (UInt_t)fInputParticles->GetSize())
     {
       mother = static_cast<Candidate*>(fInputParticles->At(mpos));
       mpos = mother->M1;
-      if(mpos >= (UInt_t)fInputParticles->GetSize()) break;
       previousmotherPID = motherPID;
       motherPID = mother->PID;
     }
