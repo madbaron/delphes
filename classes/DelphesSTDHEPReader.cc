@@ -504,7 +504,7 @@ void DelphesSTDHEPReader::AnalyzeParticles(DelphesFactory *factory,
 
     if(!pdgParticle) continue;
 
-    if(status == 1)
+    if(status == 1 || pdgCode == 1000024)
     {
       stableParticleOutputArray->Add(candidate);
     }

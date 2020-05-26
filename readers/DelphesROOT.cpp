@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
  
           pdgCode = TMath::Abs(gen->PID);
 
-          if(gen->Status == 1)
+          if(gen->Status == 1 || pdgCode == 1000024)
           {
             stableParticleOutputArray->Add(candidate);
           }
