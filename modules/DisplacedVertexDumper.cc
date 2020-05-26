@@ -102,7 +102,6 @@ void DisplacedVertexDumper::Process()
   TLorentzVector candidate_outPosition;
   Int_t motherPID = 999999999;
   Int_t lastmotherPID;
-  Int_t previousmotherPID;
 
   // loop over all input candidates
   fItInputArray->Reset();
@@ -110,6 +109,8 @@ void DisplacedVertexDumper::Process()
   {
 
     candidatePosition = candidate->InitialPosition;
+
+    //If the mother exists, get its PID
     UInt_t mpos = candidate->M1;
     if(mpos>=0 && mpos < (UInt_t)fInputParticles->GetSize()){
       mother = static_cast<Candidate*>(fInputParticles->At(mpos));
@@ -119,21 +120,22 @@ void DisplacedVertexDumper::Process()
       lastmotherPID = -1;
     }
 
+    //Now navigate back the chain to the find the first outgoing SUSY particle
     while(mpos >= 0 && mpos < (UInt_t)fInputParticles->GetSize())
     {
       mother = static_cast<Candidate*>(fInputParticles->At(mpos));
       mpos = mother->M1;
-      previousmotherPID = motherPID;
       motherPID = mother->PID;
+      if((fabs(motherPID)>1000000 && fabs(motherPID)<1000040) || (fabs(motherPID)>2000000 && fabs(motherPID)<2000016)) break;
     }
 
     // Check radial displacement
     double r = TMath::Hypot(candidatePosition.X(), candidatePosition.Y()) * 1.0E3; // in [mm]
 
-    // Save everything above 4 mm (TODO: make this configurable)
-    if( r > 4. ){
+    // Save SUSY particles and everything above 4 mm (TODO: make this configurable)
+    if( r > 4. || ((fabs(motherPID)>1000000 && fabs(motherPID)<1000040) || (fabs(motherPID)>2000000 && fabs(motherPID)<2000016)) ){
 
-      double min_distance = 9999999999999999999999.;
+      double min_distance = 99999999999.;
       //Loop over output to avoid duplicates
       fItOutputArray->Reset();
       while((candidate_out = static_cast<Candidate *>(fItOutputArray->Next()))){
@@ -155,7 +157,7 @@ void DisplacedVertexDumper::Process()
         // Add to output array
         candidate = static_cast<Candidate *>(candidate->Clone());
         candidate->InitialPosition = candidatePosition;
-        if(fabs(previousmotherPID)>999999) candidate->PID = previousmotherPID;
+        if( ((fabs(motherPID)>1000000 && fabs(motherPID)<1000040) || (fabs(motherPID)>2000000 && fabs(motherPID)<2000016)) ) candidate->PID = motherPID;
         else candidate->PID = lastmotherPID;
         fOutputArray->Add(candidate);
       }
