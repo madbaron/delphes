@@ -240,6 +240,7 @@ public:
 
   UInt_t vxTruth;
   Int_t PID;
+  Int_t PID_mom; // PID of the mother (used only to resolve N1 decay chains)
 
   ClassDef(DisplacedVertex, 1)
 };
@@ -595,6 +596,7 @@ public:
   Candidate();
 
   Int_t PID;
+  Int_t PID_mom;
 
   UInt_t vxTruth;
 

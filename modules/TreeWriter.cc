@@ -324,7 +324,7 @@ void TreeWriter::ProcessDisplacedVertices(ExRootTreeBranch *branch, TObjArray *a
 
   Double_t x, y, z, t;
   UInt_t vxTruth;
-  Int_t PID;
+  Int_t PID, PID_mom;
 
   // loop over all vertices
   iterator.Reset();
@@ -338,6 +338,7 @@ void TreeWriter::ProcessDisplacedVertices(ExRootTreeBranch *branch, TObjArray *a
 
     vxTruth = candidate->vxTruth;
     PID = candidate->PID;
+    PID_mom = candidate->PID_mom;
 
     entry = static_cast<DisplacedVertex*>(branch->NewEntry());
 
@@ -348,6 +349,7 @@ void TreeWriter::ProcessDisplacedVertices(ExRootTreeBranch *branch, TObjArray *a
 
     entry->vxTruth = vxTruth;
     entry->PID = PID;
+    entry->PID_mom = PID_mom;
 
   }
 }

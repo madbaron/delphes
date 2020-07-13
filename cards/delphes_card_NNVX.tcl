@@ -54,7 +54,6 @@ module ParticlePropagator ParticlePropagator {
   set ChargedHadronOutputArray chargedHadrons
   set ElectronOutputArray electrons
   set MuonOutputArray muons
-  set SUSYOutputArray charginos
 
   # radius of the magnetic field coverage, in m
   set Radius 1.15
@@ -74,7 +73,7 @@ module Merger TrackMergerAll {
   add InputArray ParticlePropagator/chargedHadrons
   add InputArray ParticlePropagator/electrons
   add InputArray ParticlePropagator/muons
-  add InputArray ParticlePropagator/charginos
+
   set OutputArray tracks
 }
 
