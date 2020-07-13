@@ -108,6 +108,7 @@ void ParticlePropagator::Init()
   fChargedHadronOutputArray = ExportArray(GetString("ChargedHadronOutputArray", "chargedHadrons"));
   fElectronOutputArray = ExportArray(GetString("ElectronOutputArray", "electrons"));
   fMuonOutputArray = ExportArray(GetString("MuonOutputArray", "muons"));
+  fSUSYOutputArray = ExportArray(GetString("SUSYOutputArray", "susy"));
 }
 
 //------------------------------------------------------------------------------
@@ -253,6 +254,9 @@ void ParticlePropagator::Process()
           break;
         case 13:
           fMuonOutputArray->Add(candidate);
+          break;
+        case 1000024:
+          fSUSYOutputArray->Add(candidate);
           break;
         default:
           fChargedHadronOutputArray->Add(candidate);
@@ -403,6 +407,9 @@ void ParticlePropagator::Process()
           break;
         case 13:
           fMuonOutputArray->Add(candidate);
+          break;
+        case 1000024:
+          fSUSYOutputArray->Add(candidate);
           break;
         default:
           fChargedHadronOutputArray->Add(candidate);

@@ -3,7 +3,7 @@
         {
             "name": "Mac",
             "includePath": [
-                "/Applications/root_v6.16.00/include/",
+                "/Applications/root_v6.18.04/include/",
                 "${workspaceFolder}/**"
             ],
             "defines": [],

@@ -62,6 +62,7 @@ private:
   TObjArray *fChargedHadronOutputArray; //!
   TObjArray *fElectronOutputArray; //!
   TObjArray *fMuonOutputArray; //!
+  TObjArray *fSUSYOutputArray; //!
 
   ClassDef(ParticlePropagator, 1)
 };
