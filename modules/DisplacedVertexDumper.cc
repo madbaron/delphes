@@ -102,7 +102,7 @@ void DisplacedVertexDumper::Process()
   TLorentzVector candidate_outPosition;
   Int_t motherPID = 999999999;
   Int_t lastmotherPID;
-  Int_t firstmotherPID;
+  Int_t firstmotherPID = 0;
 
   // loop over all input candidates
   fItInputArray->Reset();
@@ -127,11 +127,16 @@ void DisplacedVertexDumper::Process()
       mother = static_cast<Candidate*>(fInputParticles->At(mpos));
       mpos = mother->M1;
       motherPID = mother->PID;
-      if((fabs(motherPID)>1000000 && fabs(motherPID)<1000040) || (fabs(motherPID)>2000000 && fabs(motherPID)<2000016)){
+      if((fabs(motherPID)>1000000 && fabs(motherPID)<1000040) || (fabs(motherPID)>2000000 && fabs(motherPID)<2000016)){        
         if (mpos >= 0 && mpos < (UInt_t)fInputParticles->GetSize()){
           mother = static_cast<Candidate*>(fInputParticles->At(mpos));
           mpos = mother->M1;
           firstmotherPID = mother->PID;
+          while (mpos >= 0 && mpos < (UInt_t)fInputParticles->GetSize() && firstmotherPID==motherPID){
+            mother = static_cast<Candidate*>(fInputParticles->At(mpos));
+            mpos = mother->M1;
+            firstmotherPID = mother->PID;
+          }
         }
         break;
       }
