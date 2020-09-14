@@ -324,6 +324,7 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
   const double stop_criterion = 1E4;  // in [mm]
   const double hit_precision = 1E0;  // in [mm]
   double step_size = hit_precision * 1.0E-3 / c_light; // in [s]
+  const int max_n_hits = 10000;
 
   if (fDebug > 0) {
     point_t p = helix.start_xyz;
@@ -332,6 +333,8 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
     std::cout << "pt " << helix.pt << " pz " << helix.pz << std::endl;
     std::cout << "R " << helix.R << std::endl;
   }
+
+  int n_hits = 0;
 
   for (size_t iStep = 0; true; ++iStep) {
 
@@ -384,8 +387,9 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
         new_hit->partIdx = partIdx;
         new_hit->vxTruth = candidate->vxTruth;
         fOutputArray->Add(new_hit);
+        n_hits++;
 
-        cumul_distance = 0;
+          cumul_distance = 0;
       }
     }
 
@@ -413,8 +417,9 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
         new_hit->partIdx = partIdx;
         new_hit->vxTruth = candidate->vxTruth;
         fOutputArray->Add(new_hit);
+        n_hits++;
 
-        cumul_distance = 0;
+          cumul_distance = 0;
       }
     }
 
@@ -429,6 +434,16 @@ void SiliconHits::Track(const Candidate * candidate, size_t partIdx)
     if (cumul_distance > stop_criterion) {
       if (fDebug > 0) {
         std::cout << "Max track length reached at r=" << r_t << " z=" << z_t << std::endl;
+        std::cout << "Tracking for particle " << partIdx << " done at step " << iStep << std::endl;
+      }
+      break;
+    }
+
+    if(n_hits > max_n_hits)
+    {
+      if(fDebug > 0)
+      {
+        std::cout << "Max Nhits reached" << std::endl;
         std::cout << "Tracking for particle " << partIdx << " done at step " << iStep << std::endl;
       }
       break;
